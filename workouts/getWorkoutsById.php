@@ -15,18 +15,17 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$sql = "SELECT * FROM trainings";
+$workout_id = $_GET['id'];
+
+$sql = "SELECT * FROM workouts WHERE id=$workout_id";
 $result = $conn->query($sql);
 
-$trainings = array();
-
 if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-        array_push($trainings, $row);
-    }
+    $workout = $result->fetch_assoc();
+    echo json_encode($workout);
+} else {
+    echo json_encode(array("message" => "Workout not found"));
 }
-
-echo json_encode($trainings);
 
 $conn->close();
 ?>
