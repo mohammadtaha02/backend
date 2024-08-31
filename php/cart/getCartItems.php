@@ -15,18 +15,36 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$sql = "SELECT * FROM products";
+$user_id = $_GET['user_id'];
+
+$sql = "
+    SELECT 
+        cart.id as cart_id, 
+        products.name as product_name, 
+        products.price as product_price, 
+        cart.quantity, 
+        (products.price * cart.quantity) as total_price,
+        products.image as product_image
+    FROM 
+        cart 
+    JOIN 
+        products 
+    ON 
+        cart.product_id = products.id 
+    WHERE 
+        cart.user_id = '$user_id'";
+
 $result = $conn->query($sql);
 
-$products = array();
+$cartItems = array();
 
 if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
-        array_push($products, $row);
+        array_push($cartItems, $row);
     }
 }
 
-echo json_encode($products);
+echo json_encode($cartItems);
 
 $conn->close();
 ?>
