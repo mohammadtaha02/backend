@@ -1,7 +1,11 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET');
+header('Access-Control-Allow-Methods: POST, GET, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
 $servername = "localhost";
@@ -15,36 +19,36 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$user_id = $_GET['user_id'];
+if (!isset($_GET['email'])) {
+    die("Error: Email not provided.");
+}
 
-$sql = "
-    SELECT 
-        cart.id as cart_id, 
-        products.name as product_name, 
-        products.price as product_price, 
-        cart.quantity, 
-        (products.price * cart.quantity) as total_price,
-        products.image as product_image
-    FROM 
-        cart 
-    JOIN 
-        products 
-    ON 
-        cart.product_id = products.id 
-    WHERE 
-        cart.user_id = '$user_id'";
+$email = $_GET['email'];
 
-$result = $conn->query($sql);
+$userQuery = "SELECT id FROM users WHERE email = '$email'";
+$userResult = $conn->query($userQuery);
+$userData = $userResult->fetch_assoc();
+
+if (!$userData) {
+    die("Error: User not found.");
+}
+
+$user_id = $userData['id'];
+
+$sql = "SELECT id AS cart_id, user_id, product_id, quantity, total_price, product_name, product_price, product_image FROM cart WHERE user_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
 
 $cartItems = array();
 
-if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-        array_push($cartItems, $row);
-    }
+while ($row = $result->fetch_assoc()) {
+    array_push($cartItems, $row);
 }
 
 echo json_encode($cartItems);
+
 
 $conn->close();
 ?>
