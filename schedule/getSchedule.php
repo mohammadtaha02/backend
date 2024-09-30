@@ -1,8 +1,9 @@
 <?php
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET');
+header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
+
 
 $servername = "localhost";
 $username = "root";
@@ -15,16 +16,16 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$workout_id = $_GET['id'];
+$email = $_GET['email'];
 
-$sql = "SELECT * FROM workouts WHERE id=$workout_id";
+$sql = "SELECT schedule_json FROM user_schedules WHERE user_email='$email'";
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
-    $workout = $result->fetch_assoc();
-    echo json_encode($workout);
+    $row = $result->fetch_assoc();
+    echo $row['schedule_json'];
 } else {
-    echo json_encode(array("message" => "Workout not found"));
+    echo json_encode([]);
 }
 
 $conn->close();

@@ -4,7 +4,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 
-$conn = mysqli_connect("localhost", "root", "1234", "gym");
+$conn = mysqli_connect("localhost", "root", "1234", "gymawi");
 
 if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());

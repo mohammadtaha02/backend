@@ -7,7 +7,7 @@ header('Access-Control-Allow-Headers: Content-Type');
 $servername = "localhost";
 $username = "root";
 $password = "1234";
-$dbname = "gym";
+$dbname = "gymawi";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
@@ -17,10 +17,10 @@ if ($conn->connect_error) {
 // Get the JSON input
 $input = json_decode(file_get_contents('php://input'), true);
 
-// Extract data from the request
-$userEmail = $input['userEmail'];
-$purchaseItems = $input['purchaseItems'];
-$totalPrice = $input['totalPrice'];
+// Extract data from the input
+$userEmail = isset($input['userEmail']) ? $input['userEmail'] : null;
+$purchaseItems = isset($input['purchaseItems']) ? $input['purchaseItems'] : [];
+$totalPrice = isset($input['totalPrice']) ? $input['totalPrice'] : 0;
 
 // Fetch user_id using the email
 $sql = "SELECT id FROM users WHERE email = ?";
@@ -45,6 +45,7 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("isd", $userId, $purchaseDate, $totalPrice);
 $stmt->execute();
 $purchaseId = $stmt->insert_id;  // Get the purchase ID for this transaction
+$stmt->close();
 
 // Insert into the "purchase_items" table
 foreach ($purchaseItems as $item) {
@@ -57,9 +58,45 @@ foreach ($purchaseItems as $item) {
     $stmtItem->bind_param("iiid", $purchaseId, $productId, $quantity, $price);
     $stmtItem->execute();
 }
+$stmtItem->close();
 
-// Return success response
-echo json_encode(["status" => "success", "message" => "Purchase confirmed."]);
+// Clear the cart after purchase
+$sqlClearCart = "DELETE FROM cart WHERE user_id = ?";
+$stmtClearCart = $conn->prepare($sqlClearCart);
+$stmtClearCart->bind_param("i", $userId);
+$stmtClearCart->execute();
+$stmtClearCart->close();
+
+// Send purchase confirmation email
+$subject = "Purchase Confirmation - Order #{$purchaseId}";
+$message = "<h2>Thank you for your purchase!</h2>";
+$message .= "<p>Here are your order details:</p><ul>";
+foreach ($purchaseItems as $item) {
+    $message .= "<li>Product ID: {$item['productId']}, Quantity: {$item['quantity']}, Price: {$item['price']}</li>";
+}
+$message .= "</ul>";
+$message .= "<p>Total Price: {$totalPrice}</p>";
+$message .= "<p>We appreciate your business!</p>";
+
+$headers = "From: xtoulhaxor@gmail.com\r\n";
+$headers .= "Reply-To: xtoulhaxor@gmail.com\r\n";
+$headers .= "MIME-Version: 1.0\r\n";
+$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+
+$emailSent = false;  // Flag for tracking email sending status
+if (mail($userEmail, $subject, $message, $headers)) {
+    $emailSent = true;
+}
+
+// Return a single JSON response with both the purchase status and email status
+$response = [
+    "status" => "success",
+    "message" => "Purchase confirmed.",
+    "purchaseId" => $purchaseId,
+    "emailSent" => $emailSent
+];
+
+echo json_encode($response);
 
 $conn->close();
 ?>

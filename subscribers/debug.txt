@@ -1,0 +1,18 @@
+Array
+(
+    [subscribeData] => Array
+        (
+            [userEmail] => q@gmail.com
+            [start_date] => 2024-09-30T15:32:52.685Z
+            [end_date] => 2024-09-30T15:32:52.685Z
+            [is_active] => 1
+            [age] => 19
+            [height] => 168
+            [weight] => 85
+            [gender] => female
+            [fitness_goal] => weight_loss
+            [fitness_level] => beginner
+            [activity_level] => lightly_active
+        )
+
+)
