@@ -57,8 +57,15 @@ foreach ($purchaseItems as $item) {
     $stmtItem = $conn->prepare($sqlItem);
     $stmtItem->bind_param("iiid", $purchaseId, $productId, $quantity, $price);
     $stmtItem->execute();
+
+    // Update the product stock in the database
+    $updateStockSql = "UPDATE products SET quantity = quantity - ? WHERE id = ?";
+    $stmtUpdateStock = $conn->prepare($updateStockSql);
+    $stmtUpdateStock->bind_param("ii", $quantity, $productId);
+    $stmtUpdateStock->execute();
 }
 $stmtItem->close();
+$stmtUpdateStock->close();
 
 // Clear the cart after purchase
 $sqlClearCart = "DELETE FROM cart WHERE user_id = ?";
