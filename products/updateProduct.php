@@ -12,25 +12,44 @@ $dbname = "gymawi";
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    die(json_encode(array("message" => "Connection failed: " . $conn->connect_error)));
 }
 
-$data = json_decode(file_get_contents("php://input"));
+$input = json_decode(file_get_contents('php://input'), true);
+file_put_contents('debug.txt', print_r($input, true)); 
 
-$id = $data->id;
-$name = $data->name;
-$description = $data->description;
-$price = $data->price;
-$quantity = $data->quantity;
-$image = $data->image;
 
-$sql = "UPDATE products SET name='$name', description='$description', price='$price', quantity='$quantity', image='$image' WHERE id=$id";
+$productId = isset($input['id']) ? $input['id'] : null;
+$name = isset($input['name']) ? $input['name'] : '';
+$description = isset($input['description']) ? $input['description'] : '';
+$price = isset($input['price']) ? $input['price'] : 0;
+$category = isset($input['category']) ? $input['category'] : '';
+$quantity = isset($input['quantity']) ? $input['quantity'] : 0;
+$image = isset($input['image']) ? $input['image'] : null;
 
-if ($conn->query($sql) === TRUE) {
-    echo json_encode(array("message" => "Product updated successfully"));
+if ($productId) {
+    // Decide whether to include the image in the update or not
+    if ($image !== null) {
+        $sql = "UPDATE products SET name = ?, description = ?, price = ?, category = ?, quantity = ?, image = ? WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ssdsssi", $name, $description, $price, $category, $quantity, $image, $productId);
+    } else {
+        $sql = "UPDATE products SET name = ?, description = ?, price = ?, category = ?, quantity = ? WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ssdssi", $name, $description, $price, $category, $quantity, $productId);
+    }    
+
+    if ($stmt->execute()) {
+        echo json_encode(["status" => "success", "message" => "Product updated successfully"]);
+    } else {
+        echo json_encode(["status" => "error", "message" => "Failed to update product"]);
+    }
+
+    $stmt->close();
 } else {
-    echo json_encode(array("message" => "Error: " . $sql . "<br>" . $conn->error));
+    echo json_encode(["status" => "error", "message" => "Invalid product ID"]);
 }
 
 $conn->close();
+
 ?>
