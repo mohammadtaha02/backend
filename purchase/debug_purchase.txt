@@ -1,0 +1,21 @@
+Array
+(
+    [userEmail] => mohamedtaha1119@gmail.com
+    [purchaseItems] => Array
+        (
+            [0] => Array
+                (
+                    [cart_id] => 212
+                    [user_id] => 123
+                    [product_id] => 1
+                    [quantity] => 2
+                    [total_price] => 400
+                    [product_name] => back machine
+                    [product_price] => 200.00
+                    [product_image] => assets/back machine.jpg
+                )
+
+        )
+
+    [totalPrice] => 400
+)

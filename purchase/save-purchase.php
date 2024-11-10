@@ -14,6 +14,7 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     die(json_encode(array("message" => "Connection failed: " . $conn->connect_error)));
 }
+
 // Get the JSON input
 $input = json_decode(file_get_contents('php://input'), true);
 
@@ -21,6 +22,9 @@ $input = json_decode(file_get_contents('php://input'), true);
 $userEmail = isset($input['userEmail']) ? $input['userEmail'] : null;
 $purchaseItems = isset($input['purchaseItems']) ? $input['purchaseItems'] : [];
 $totalPrice = isset($input['totalPrice']) ? $input['totalPrice'] : 0;
+
+// Debug the incoming data
+file_put_contents('debug_purchase.txt', print_r($input, true));
 
 // Fetch user_id using the email
 $sql = "SELECT id FROM users WHERE email = ?";
@@ -49,9 +53,16 @@ $stmt->close();
 
 // Insert into the "purchase_items" table
 foreach ($purchaseItems as $item) {
-    $productId = $item['productId'];
+    // Check if all required fields are present
+    if (!isset($item['product_id']) || !isset($item['quantity']) || !isset($item['product_price'])) {
+        echo json_encode(["status" => "error", "message" => "Missing product details for one of the items"]);
+        $conn->close();
+        exit();
+    }
+
+    $productId = $item['product_id'];
     $quantity = $item['quantity'];
-    $price = $item['price'];
+    $price = $item['product_price'];
 
     $sqlItem = "INSERT INTO purchase_items (purchase_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
     $stmtItem = $conn->prepare($sqlItem);
@@ -79,7 +90,7 @@ $subject = "Purchase Confirmation - Order #{$purchaseId}";
 $message = "<h2>Thank you for your purchase!</h2>";
 $message .= "<p>Here are your order details:</p><ul>";
 foreach ($purchaseItems as $item) {
-    $message .= "<li>Product ID: {$item['productId']}, Quantity: {$item['quantity']}, Price: {$item['price']}</li>";
+    $message .= "<li>Product: {$item['product_name']}, Quantity: {$item['quantity']}, Price: {$item['product_price']}</li>";
 }
 $message .= "</ul>";
 $message .= "<p>Total Price: {$totalPrice}</p>";
