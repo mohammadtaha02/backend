@@ -1,0 +1,11 @@
+Array
+(
+    [id] => 139
+    [email] => s@gmail.com
+    [password] => s
+    [name] => s
+    [male] => 0
+    [image] => 
+    [birth_date] => 2024-07-04
+    [is_admin] => 0
+)

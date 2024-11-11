@@ -17,7 +17,7 @@ if ($conn->connect_error) {
 
 $email = $_GET['email'];
 
-// First, retrieve the user's ID from the users table using the email
+// first, retrieve the user's ID from the users table using the email
 $userSql = "SELECT id FROM users WHERE email = '$email'";
 $userResult = $conn->query($userSql);
 
@@ -25,7 +25,7 @@ if ($userResult->num_rows > 0) {
     $user = $userResult->fetch_assoc();
     $userId = $user['id'];
 
-    // Now, fetch the subscription details from the subscriptions table using the user ID
+    // fetch the subscription details from the subscriptions table using the user ID
     $subscriptionSql = "SELECT * FROM subscriptions WHERE user_id = '$userId'";
     $subscriptionResult = $conn->query($subscriptionSql);
 

@@ -8,13 +8,10 @@ $servername = "localhost";
 $username = "root";
 $password = "1234";
 $dbname = "gymawi";
-
 $conn = new mysqli($servername, $username, $password, $dbname);
-
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-
 
 $data = json_decode(file_get_contents('php://input'), true);
 file_put_contents('debug.txt', print_r($data, true)); 
@@ -30,7 +27,7 @@ $fitnessGoal = $subscribeData['fitness_goal'];
 $fitnessLevel = $subscribeData['fitness_level'];
 $activityLevel = $subscribeData['activity_level'];
 
-// Fetch user_id using the provided email
+// fetch user_id using the provided email
 $sql = "SELECT id FROM users WHERE email = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $userEmail);
@@ -45,7 +42,7 @@ if (!$user_id) {
     exit();
 }
 
-// Insert the subscription data into the database
+// insert the subscription data into the database
 $start_date = date('Y-m-d');
 $end_date = date('Y-m-d', strtotime('+1 year'));
 $is_active = 1;
@@ -63,5 +60,4 @@ if ($stmt->execute()) {
 
 $stmt->close();
 $conn->close();
-
 ?>

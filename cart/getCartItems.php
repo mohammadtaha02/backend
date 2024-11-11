@@ -12,7 +12,6 @@ $servername = "localhost";
 $username = "root";
 $password = "1234";
 $dbname = "gymawi";
-
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 if ($conn->connect_error) {
@@ -34,7 +33,6 @@ if (!$userData) {
 }
 
 $user_id = $userData['id'];
-
 $sql = "SELECT id AS cart_id, user_id, product_id, quantity, total_price, product_name, product_price, product_image FROM cart WHERE user_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
@@ -48,7 +46,6 @@ while ($row = $result->fetch_assoc()) {
 }
 
 echo json_encode($cartItems);
-
 
 $conn->close();
 ?>

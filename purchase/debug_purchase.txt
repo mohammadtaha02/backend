@@ -5,17 +5,17 @@ Array
         (
             [0] => Array
                 (
-                    [cart_id] => 212
+                    [cart_id] => 216
                     [user_id] => 123
-                    [product_id] => 1
-                    [quantity] => 2
-                    [total_price] => 400
-                    [product_name] => back machine
-                    [product_price] => 200.00
-                    [product_image] => assets/back machine.jpg
+                    [product_id] => 2
+                    [quantity] => 1
+                    [total_price] => 112
+                    [product_name] => biceps machine
+                    [product_price] => 112.00
+                    [product_image] => assets/biceps machine.jpg
                 )
 
         )
 
-    [totalPrice] => 400
+    [totalPrice] => 112
 )

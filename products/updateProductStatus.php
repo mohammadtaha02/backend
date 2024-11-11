@@ -1,3 +1,4 @@
+// updateProductStatus.php
 <?php
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -24,23 +25,7 @@ if (!isset($data['product_id'])) {
 
 $productId = $data['product_id'];
 
-// Check if the product is referenced in the purchase_items table
-$sqlCheck = "SELECT COUNT(*) AS count FROM purchase_items WHERE product_id = ?";
-$stmtCheck = $conn->prepare($sqlCheck);
-$stmtCheck->bind_param("i", $productId);
-$stmtCheck->execute();
-$result = $stmtCheck->get_result();
-$count = $result->fetch_assoc()['count'];
-
-if ($count > 0) {
-    echo json_encode(array("status" => "error", "message" => "Cannot delete product. It is referenced in purchase items."));
-    $stmtCheck->close();
-    $conn->close();
-    exit();
-}
-
-// Proceed with deletion if no dependencies
-$sql = "DELETE FROM products WHERE id = ?";
+$sql = "UPDATE products SET is_deleted = 1 WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $productId);
 

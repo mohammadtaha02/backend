@@ -15,22 +15,22 @@ if ($conn->connect_error) {
     die(json_encode(array("status" => "error", "message" => "Connection failed: " . $conn->connect_error)));
 }
 
-$category = isset($_GET['category']) ? $_GET['category'] : '';
-
-$sql = "SELECT * FROM products WHERE is_deleted = 0";  // Only fetch active products
-if ($category && $category !== 'ALL') {
-    $sql .= " AND LOWER(name) LIKE '%$category%'";
-}
+// Joining subscriptions with users to get subscriber details
+$sql = "SELECT s.*, u.email, u.name, u.male, u.birth_date 
+        FROM subscriptions s 
+        JOIN users u ON s.user_id = u.id
+        WHERE s.is_active = 1";
 
 $result = $conn->query($sql);
 
-$products = array();
+$subscribers = [];
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
-        $products[] = $row;
+        $subscribers[] = $row;
     }
 }
 
-echo json_encode(array("status" => "success", "data" => $products));
+echo json_encode($subscribers);
+
 $conn->close();
 ?>
